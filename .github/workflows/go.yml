@@ -1,0 +1,41 @@
+name: Builder
+
+on:
+  push:
+
+  # Run tests for any PRs.
+  pull_request:
+
+#env:
+
+jobs:
+  # Run tests.
+  # See also https://docs.docker.com/docker-hub/builds/automated-testing/
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+#      - name: Download math result for build job
+#        uses: actions/download-artifact@v1
+#        with:
+#          name: bin
+
+      - uses: creekorful/goreportcard-action@v1.0
+
+      - uses: actions/checkout@v2
+#      - uses: actions/cache@v1
+#        with:
+#          path: ~/go/pkg/mod
+#          key: ${{ runner.os }}-go-${{ hashFiles('**/go.mod') }}
+#          restore-keys: |
+#            ${{ runner.os }}-go-
+
+      - name: Run tests
+        run: |
+          if [ -f docker-compose.test.yml ]; then
+            docker-compose --file docker-compose.test.yml build
+            docker-compose --file docker-compose.test.yml run sut
+          else
+            chmod +x ./go_build.sh && ./go_build.sh
+          fi
+ 
