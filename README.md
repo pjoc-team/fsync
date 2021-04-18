@@ -13,6 +13,58 @@
 
 A file sync server.
 
+## Config
+
+Cloud adaptor:
+- TencentCloud: https://cloud.tencent.com/document/product/436/37421
+- AliCloud: https://help.aliyun.com/document_detail/64919.html
+- GoogleCloud: https://cloud.google.com/docs/compare/aws/storage#distributed_object_storage
+- Azure: https://docs.microsoft.com/en-us/azure/storage/common/storage-account-create?tabs=azure-portal
+
+### Parameters
+
+| arg | env | description | default |
+| --- | --- | --- | --- |
+| dataPath | DATA_PATH | Data path to upload and watch | ./data |
+| secretId | SECRET_ID | SecretID for s3 | |
+| secretKey | SECRET_KEY | SecretKey for s3 | |
+| bucket | BUCKET | Bucket name | |
+| endpoint | ENDPOINT | Endpoint url for s3 | https://cos.ap-guangzhou.myqcloud.com |
+| blockSize | BLOCK_SIZE | upload buf | 1048576 |
+| debug | DEBUG | is debug log? | true |
+| initUpload | INIT_UPLOAD | need upload all data. | false |
+
+## Docker
+
+see [./docker/start.sh](docker/start.sh)
+
+```bash
+docker run --name="fsync-init" --rm -d \
+        -v `pwd`/data:/data \
+       	-e SECRET_ID="[YOUR_SECRET_ID]" \
+       	-e SECRET_KEY="[YOUR_SECRET_KEY]" \
+	      -e DATA_PATH="/data" \
+        -e ENDPOINT="https://cos.ap-guangzhou.myqcloud.com" \
+        -e BUCKET="backup-1251070767" \
+        -e BLOCK_SIZE="1048576" \
+        -e DEBUG="true" \
+        -e INIT_UPLOAD="true" \
+	pjoc/fsync:master
+
+docker run --name="fsync-watcher" -d \
+        -v `pwd`/data:/data \
+       	-e SECRET_ID="[YOUR_SECRET_ID]" \
+       	-e SECRET_KEY="[YOUR_SECRET_KEY]" \
+	      -e DATA_PATH="/data" \
+        -e ENDPOINT="https://cos.ap-guangzhou.myqcloud.com" \
+        -e BUCKET="backup-1251070767" \
+        -e BLOCK_SIZE="1048576" \
+        -e DEBUG="true" \
+        -e INIT_UPLOAD="false" \
+	pjoc/fsync:master
+
+```
+
 ## Collaborators
 
 <!-- readme: collaborators -start --> 
