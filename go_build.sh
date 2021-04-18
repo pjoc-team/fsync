@@ -18,5 +18,5 @@ grep -Er "func\s+main\(\s*\)" "${cmd_dir}" | awk -F ":" '{print $1}' | while rea
   bin="${bin_dir}/$dir_name"
 
   echo "build source: $source to bin: ${bin}"
-  CGO_ENABLED=0 GOOS=linux go build -o ${bin} ./$source
+  CGO_ENABLED=0 GOOS=linux go build -o ${bin} $d
 done
