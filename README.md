@@ -1,4 +1,4 @@
-# action-test
+# fsync
 
 [![License](https://img.shields.io/github/license/pjoc-team/go-action-template.svg)](https://www.apache.org/licenses/LICENSE-2.0)
 [![Stars](https://img.shields.io/github/stars/pjoc-team/go-action-template.svg)](https://github.com/pjoc-team/go-action-template/stargazers)
@@ -11,7 +11,7 @@
 [![Docker](https://img.shields.io/docker/image-size/pjoc/go-action-template/latest.svg)](https://hub.docker.com/r/pjoc/go-action-template/tags)
 [![Docker](https://img.shields.io/docker/pulls/pjoc/go-action-template.svg)](https://hub.docker.com/r/pjoc/go-action-template/tags)
 
-Github action test
+A file sync server.
 
 ## Collaborators
 
