@@ -134,6 +134,10 @@ func (s *server) uploadFile(file string) error {
 	absolutePath := strings.TrimPrefix(file, s.rootPath)
 	path := filepath.Join("/", absolutePath)
 	writer, err := s.storage.Create(s.ctx, path)
+	if err != nil {
+		log.Errorf("failed to create file: %v error: %v", file, err.Error())
+		return err
+	}
 	defer func() {
 		err2 := writer.Close()
 		if err2 != nil {

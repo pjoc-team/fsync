@@ -20,6 +20,7 @@ type storage struct {
 	sess           *session.Session
 }
 
+// NewOssStorage create s3 storage
 func NewOssStorage(
 	conf *Conf,
 	blockSize int, debug bool,

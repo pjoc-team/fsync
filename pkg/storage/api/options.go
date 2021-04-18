@@ -13,6 +13,7 @@ type Option interface {
 // OptionFunc functional option implements
 type OptionFunc func(o *Options)
 
+// Apply apply option
 func (of OptionFunc) Apply(o *Options) {
 	of(o)
 }
@@ -22,6 +23,7 @@ func NewOptions() *Options {
 	return &Options{}
 }
 
+// Apply apply options
 func (o *Options) Apply(option ...Option) {
 	for _, opt := range option {
 		opt.Apply(o)
