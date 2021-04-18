@@ -1,4 +1,4 @@
-package main
+package viper
 
 import (
 	"fmt"
@@ -8,8 +8,14 @@ import (
 	"strings"
 )
 
+// Config config
+type Config struct {
+	v       *viper.Viper
+	options []viper.DecoderConfigOption
+}
+
 // NewConf parse conf
-func NewConf(filePath string) (*Conf, error) {
+func NewConf(filePath string) (*Config, error) {
 	v := viper.New()
 	v.SetConfigFile(filePath)
 	configType := configType(filePath)
@@ -17,14 +23,21 @@ func NewConf(filePath string) (*Conf, error) {
 		return nil, fmt.Errorf("unknown file extension of file: %v", filePath)
 	}
 	v.SetConfigType(configType)
+	c := &Config{}
+
 	options := viperDecoderConfig(configType)
-	conf := &Conf{}
-	err := v.Unmarshal(conf, options...)
+	c.options = options
+	return c, nil
+}
+
+// UnmarshalConfig unmarshal config to ptr
+func (c *Config) UnmarshalConfig(conf interface{}) error {
+	err := c.v.Unmarshal(conf, c.options...)
 	if err != nil {
-		logger.Log().Errorf("failed to unmarshal file: %v, error: %v", filePath, err.Error())
-		return nil, err
+		logger.Log().Errorf("failed to unmarshal conf, error: %v", err.Error())
+		return err
 	}
-	return conf, nil
+	return nil
 }
 
 func viperDecoderConfig(configType string) []viper.DecoderConfigOption {

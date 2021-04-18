@@ -33,3 +33,24 @@ func OptionBufferSize(o int) ApplyOptionFunc {
 		return nil
 	}
 }
+
+func OptionInitUpload(o bool) ApplyOptionFunc {
+	return func(c *foptions) error {
+		c.InitUpload = o
+		return nil
+	}
+}
+
+func OptionConfPath(o string) ApplyOptionFunc {
+	return func(c *foptions) error {
+		c.ConfPath = o
+		return nil
+	}
+}
+
+func OptionThreadPoolSize(o int) ApplyOptionFunc {
+	return func(c *foptions) error {
+		c.ThreadPoolSize = o
+		return nil
+	}
+}

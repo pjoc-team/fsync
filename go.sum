@@ -231,6 +231,8 @@ github.com/opentracing/opentracing-go v1.2.0/go.mod h1:GxEUsuufX4nBwe+T+Wl9TAgYr
 github.com/pascaldekloe/goe v0.0.0-20180627143212-57f6aae5913c/go.mod h1:lzWF7FIEvWOWxwDKqyGYQf6ZUaNfKdP144TG7ZOy1lc=
 github.com/pelletier/go-toml v1.2.0 h1:T5zMGML61Wp+FlcbWjRDT7yAxhJNAiPPLOFECq181zc=
 github.com/pelletier/go-toml v1.2.0/go.mod h1:5z9KED0ma1S8pY6P1sdut58dfprrGBbd/94hg7ilaic=
+github.com/pjoc-team/threadpool v0.0.0-20210328131635-9465ba1612d5 h1:CuxlmJg6M65krWhOm8q8yub26Y7Ub5dVCzflkJ9OsS8=
+github.com/pjoc-team/threadpool v0.0.0-20210328131635-9465ba1612d5/go.mod h1:zutgfFuQHKlwfQretjZeRZSBqnHF6/w9AhGTF80ujOQ=
 github.com/pjoc-team/tracing v0.0.0-20210131093452-72760bc3d144 h1:B1ShHxmir7m0SDx5U+iUk9uBUxp8ZsEsZdanRE8S5d8=
 github.com/pjoc-team/tracing v0.0.0-20210131093452-72760bc3d144/go.mod h1:CIMpaqs4eqCX/fwASSt6DExoUrO/+ZpW0i6WT7h+pn0=
 github.com/pkg/errors v0.8.0/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINEl0=

@@ -15,6 +15,7 @@ require (
 	github.com/mitchellh/mapstructure v1.1.2
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.1 // indirect
+	github.com/pjoc-team/threadpool v0.0.0-20210328131635-9465ba1612d5
 	github.com/pjoc-team/tracing v0.0.0-20210131093452-72760bc3d144
 	github.com/spf13/cobra v0.0.7
 	github.com/spf13/pflag v1.0.5

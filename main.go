@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"flag"
+	"github.com/pjoc-team/fsync/internal/viper"
 	"github.com/pjoc-team/fsync/pkg/fsync"
 	"github.com/pjoc-team/fsync/pkg/storage/api"
 	oss2 "github.com/pjoc-team/fsync/pkg/storage/backend/oss"
@@ -16,14 +17,11 @@ import (
 )
 
 var (
-	path      string
-	endpoint  string
-	bucket    string
-	secretID  string
-	secretKey string
-	blockSize int
-	debug     bool
-	confFile  string
+	confFile string
+)
+
+const (
+	threadPoolSize = 16
 )
 
 // Conf config struct
@@ -33,19 +31,26 @@ type Conf struct {
 	Bucket    string
 	SecretID  string
 	SecretKey string
+	ConfPath  string
 	BlockSize int
 	Debug     bool
 }
 
+// Conf conf instance
+var conf *Conf
+
 func init() {
+	conf = &Conf{}
+
 	flag.StringVar(&confFile, "conf", "", "conf file path")
-	flag.StringVar(&path, "path", "./data/", "upload path")
-	flag.StringVar(&endpoint, "endpoint", "https://cos.ap-guangzhou.myqcloud.com", "endpoint")
-	flag.StringVar(&bucket, "bucket", "backup-1251070767", "bucket")
-	flag.StringVar(&secretID, "secret-id", "[changeSecretID]", "secretID")
-	flag.StringVar(&secretKey, "secret-key", "[changeSecretKey]", "secretKey")
-	flag.IntVar(&blockSize, "block-size", 1024*1024, "block size")
-	flag.BoolVar(&debug, "debug", true, "debug oss")
+	flag.StringVar(&conf.Path, "path", "./data/", "upload path")
+	flag.StringVar(&conf.ConfPath, "conf-path", "./conf/", "config path")
+	flag.StringVar(&conf.Endpoint, "endpoint", "https://cos.ap-guangzhou.myqcloud.com", "endpoint")
+	flag.StringVar(&conf.Bucket, "bucket", "backup-1251070767", "bucket")
+	flag.StringVar(&conf.SecretID, "secret-id", "[changeSecretID]", "secretID")
+	flag.StringVar(&conf.SecretKey, "secret-key", "[changeSecretKey]", "secretKey")
+	flag.IntVar(&conf.BlockSize, "block-size", 1024*1024, "block size")
+	flag.BoolVar(&conf.Debug, "debug", true, "debug oss")
 }
 
 func main() {
@@ -66,11 +71,17 @@ func main() {
 
 	// init
 	conf, err := initConf()
-	server, err2 := initServer(conf)
-	if err2 != nil {
-		log.Fatalf("failed init file storage server, error: %v", err2.Error())
+	if err != nil {
+		log.Fatalf("failed init file storage server, error: %v", err.Error())
 	}
-	s, err := fsync.NewServer(ctx, path, server, fsync.OptionBufferSize(conf.BlockSize))
+	server, err := initServer(conf)
+	if err != nil {
+		log.Fatalf("failed init file storage server, error: %v", err.Error())
+	}
+	s, err := fsync.NewServer(
+		ctx, conf.Path, server, fsync.OptionBufferSize(conf.BlockSize),
+		fsync.OptionConfPath(conf.ConfPath), fsync.OptionThreadPoolSize(threadPoolSize),
+	)
 	if err != nil {
 		log.Fatalf("failed to create server, error: %v", err.Error())
 	}
@@ -109,16 +120,18 @@ func main() {
 
 func initConf() (*Conf, error) {
 	if confFile != "" {
-		return NewConf(confFile)
-	}
-	conf := &Conf{
-		Path:      path,
-		Endpoint:  endpoint,
-		Bucket:    bucket,
-		SecretID:  secretID,
-		SecretKey: secretKey,
-		BlockSize: blockSize,
-		Debug:     debug,
+		conf = &Conf{}
+		cs, err := viper.NewConf(confFile)
+		if err != nil {
+			logger.Log().Errorf("failed to init conf", err.Error())
+			return nil, err
+		}
+		err = cs.UnmarshalConfig(conf)
+		if err != nil {
+			logger.Log().Errorf("failed to init conf", err.Error())
+			return nil, err
+		}
+		return conf, nil
 	}
 	level := logger.InfoLevel
 	if conf.Debug {
@@ -141,8 +154,8 @@ func initServer(conf *Conf) (api.FileStorage, error) {
 	}
 	s, err := oss2.NewOssStorage(
 		oc,
-		blockSize,
-		debug,
+		conf.BlockSize,
+		conf.Debug,
 	)
 
 	return s, err
