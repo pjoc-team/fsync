@@ -25,14 +25,14 @@ Cloud adaptor:
 
 | arg | env | description | default |
 | --- | --- | --- | --- |
-| dataPath | DATA_PATH | Data path to upload and watch | ./data |
-| secretId | SECRET_ID | SecretID for s3 | |
-| secretKey | SECRET_KEY | SecretKey for s3 | |
+| data-path | DATA_PATH | Data path to upload and watch | ./data |
+| secret-id | SECRET_ID | SecretID for s3 | |
+| secret-key | SECRET_KEY | SecretKey for s3 | |
 | bucket | BUCKET | Bucket name | backup-1251070767 |
 | endpoint | ENDPOINT | Endpoint url for s3 | https://cos.ap-guangzhou.myqcloud.com |
-| blockSize | BLOCK_SIZE | upload buf | 1048576 |
+| block-size | BLOCK_SIZE | upload buf | 1048576 |
 | debug | DEBUG | is debug log? | true |
-| initUpload | INIT_UPLOAD | need upload all data. | false |
+| init-upload | INIT_UPLOAD | need upload all data. | false |
 
 ## Docker
 
