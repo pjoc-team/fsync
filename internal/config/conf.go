@@ -1,4 +1,4 @@
-package viper
+package config
 
 import (
 	"fmt"
@@ -25,8 +25,9 @@ func NewConf(filePath string) (*Config, error) {
 	v.SetConfigType(configType)
 	c := &Config{}
 
-	options := viperDecoderConfig(configType)
+	options := DecoderConfig(configType)
 	c.options = options
+	c.v = v
 	return c, nil
 }
 
@@ -40,7 +41,8 @@ func (c *Config) UnmarshalConfig(conf interface{}) error {
 	return nil
 }
 
-func viperDecoderConfig(configType string) []viper.DecoderConfigOption {
+// DecoderConfig decoder config
+func DecoderConfig(configType string) []viper.DecoderConfigOption {
 	switch configType {
 	case "yaml", "yml":
 		return []viper.DecoderConfigOption{

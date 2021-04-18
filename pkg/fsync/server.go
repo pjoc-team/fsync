@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 	"github.com/fsnotify/fsnotify"
-	"github.com/pjoc-team/fsync/internal/viper"
+	"github.com/pjoc-team/fsync/internal/config"
 	"github.com/pjoc-team/fsync/pkg/storage/api"
 	"github.com/pjoc-team/threadpool"
 	"github.com/pjoc-team/tracing/logger"
@@ -37,6 +37,7 @@ type server struct {
 	ctx        context.Context
 	cancelFunc context.CancelFunc
 	conf       *Config
+	cs         *config.Config
 }
 
 // NewServer create server
@@ -73,7 +74,7 @@ func NewServer(
 	}
 
 	fp := filepath.Join(o.ConfPath, confFile)
-	cs, err := viper.NewConf(fp)
+	cs, err := config.NewConf(fp)
 	if err != nil {
 		log.Errorf("failed to init conf: %v, error: %v", fp, err.Error())
 		return nil, err
@@ -93,6 +94,7 @@ func NewServer(
 		ctx:        ctx,
 		cancelFunc: cancel,
 		conf:       conf,
+		cs:         cs,
 	}
 	err2 = svr.AddPath(rootPath)
 	if err2 != nil {
@@ -159,6 +161,11 @@ func (s *server) AddPath(path string) error {
 	}
 
 	s.conf.FileInitialized = true
+	err = s.writeConfig()
+	if err != nil {
+		log.Errorf("failed write config, error: %v", err.Error())
+		return err
+	}
 
 	return nil
 }
@@ -223,6 +230,10 @@ func (s *server) uploadFile(file string) error {
 	}
 	if stat.IsDir() {
 		log.Debugf("file: %v is dir, skip upload", file)
+		err := s.AddPath(file)
+		if err != nil {
+			log.Errorf("failed to watch file: %v", file)
+		}
 		return nil
 	}
 
@@ -260,4 +271,9 @@ func (s *server) uploadFile(file string) error {
 			return nil
 		}
 	}
+}
+
+func (s *server) writeConfig() error {
+	// TODO implements write data
+	return nil
 }

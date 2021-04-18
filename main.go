@@ -3,15 +3,18 @@ package main
 import (
 	"context"
 	"flag"
-	"github.com/pjoc-team/fsync/internal/viper"
+	"github.com/pjoc-team/fsync/internal/config"
 	"github.com/pjoc-team/fsync/pkg/fsync"
 	"github.com/pjoc-team/fsync/pkg/storage/api"
 	oss2 "github.com/pjoc-team/fsync/pkg/storage/backend/oss"
 	"github.com/pjoc-team/tracing/logger"
+	"github.com/spf13/pflag"
+	"github.com/spf13/viper"
 	"golang.org/x/sync/errgroup"
 	"math/rand"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 	"time"
 )
@@ -26,36 +29,70 @@ const (
 
 // Conf config struct
 type Conf struct {
-	Path      string
-	Endpoint  string
-	Bucket    string
-	SecretID  string
-	SecretKey string
-	ConfPath  string
-	BlockSize int
-	Debug     bool
+	Path       string `yaml:"path" json:"path" xml:"path"`
+	Endpoint   string `yaml:"endpoint" json:"endpoint" xml:"endpoint"`
+	Bucket     string `yaml:"bucket" json:"bucket" xml:"bucket"`
+	SecretID   string `yaml:"secretId" json:"secret_id" xml:"secret_id"`
+	SecretKey  string `yaml:"secretKey" json:"secret_key" xml:"secret_key"`
+	ConfPath   string `yaml:"confPath" json:"conf_path" xml:"conf_path"`
+	BlockSize  int    `yaml:"blockSize" json:"block_size" xml:"block_size"`
+	Debug      bool   `yaml:"debug" json:"debug" xml:"debug"`
+	InitUpload bool   `yaml:"initUpload" json:"init_upload" xml:"init_upload"`
 }
 
 // Conf conf instance
 var conf *Conf
 
 func init() {
+	log := logger.Log()
 	conf = &Conf{}
 
-	flag.StringVar(&confFile, "conf", "", "conf file path")
-	flag.StringVar(&conf.Path, "path", "./data/", "upload path")
-	flag.StringVar(&conf.ConfPath, "conf-path", "./conf/", "config path")
-	flag.StringVar(&conf.Endpoint, "endpoint", "https://cos.ap-guangzhou.myqcloud.com", "endpoint")
-	flag.StringVar(&conf.Bucket, "bucket", "backup-1251070767", "bucket")
-	flag.StringVar(&conf.SecretID, "secret-id", "[changeSecretID]", "secretID")
-	flag.StringVar(&conf.SecretKey, "secret-key", "[changeSecretKey]", "secretKey")
-	flag.IntVar(&conf.BlockSize, "block-size", 1024*1024, "block size")
-	flag.BoolVar(&conf.Debug, "debug", true, "debug oss")
+	confVar := "conf"
+	initUploadVar := "init-upload"
+	pathVar := "path"
+	confPathVar := "conf-path"
+	endpointVar := "endpoint"
+	bucketVar := "bucket"
+	secretIDVar := "secret-id"
+	secretKeyVar := "secret-key"
+	blockSizeVar := "block-size"
+	debugVar := "debug"
+
+	pflag.StringVar(&confFile, confVar, "", "conf file path")
+	pflag.BoolVar(&conf.InitUpload, initUploadVar, false, "upload all data when first time")
+	pflag.StringVar(&conf.Path, pathVar, "./data/", "upload path")
+	pflag.StringVar(&conf.ConfPath, confPathVar, "./conf/", "config path")
+	pflag.StringVar(&conf.Endpoint, endpointVar, "https://cos.ap-guangzhou.myqcloud.com", "endpoint")
+	pflag.StringVar(&conf.Bucket, bucketVar, "backup-1251070767", "bucket")
+	pflag.StringVar(&conf.SecretID, secretIDVar, "[changeSecretID]", "secretID")
+	pflag.StringVar(&conf.SecretKey, secretKeyVar, "[changeSecretKey]", "secretKey")
+	pflag.IntVar(&conf.BlockSize, blockSizeVar, 1024*1024, "block size")
+	pflag.BoolVar(&conf.Debug, debugVar, true, "debug oss")
+
+	pflag.CommandLine.AddGoFlagSet(flag.CommandLine)
+	pflag.Parse()
+	err2 := viper.BindPFlags(pflag.CommandLine) // support env
+	if err2 != nil {
+		log.Fatal(err2.Error())
+	}
+	viper.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
+	viper.AutomaticEnv()
+
+	confFile = viper.GetString(confVar)
+	conf.InitUpload = viper.GetBool(initUploadVar)
+	conf.Path = viper.GetString(pathVar)
+	conf.ConfPath = viper.GetString(confPathVar)
+	conf.Endpoint = viper.GetString(endpointVar)
+	conf.Bucket = viper.GetString(bucketVar)
+	conf.SecretID = viper.GetString(secretIDVar)
+	conf.SecretKey = viper.GetString(secretKeyVar)
+	conf.BlockSize = viper.GetInt(blockSizeVar)
+	conf.Debug = viper.GetBool(debugVar)
+
 }
 
 func main() {
 	rand.Seed(int64(time.Now().Nanosecond()))
-	flag.Parse()
 
 	ctx, cancelFunc := context.WithCancel(context.Background())
 	defer cancelFunc()
@@ -81,6 +118,7 @@ func main() {
 	s, err := fsync.NewServer(
 		ctx, conf.Path, server, fsync.OptionBufferSize(conf.BlockSize),
 		fsync.OptionConfPath(conf.ConfPath), fsync.OptionThreadPoolSize(threadPoolSize),
+		fsync.OptionInitUpload(conf.InitUpload),
 	)
 	if err != nil {
 		log.Fatalf("failed to create server, error: %v", err.Error())
@@ -121,7 +159,7 @@ func main() {
 func initConf() (*Conf, error) {
 	if confFile != "" {
 		conf = &Conf{}
-		cs, err := viper.NewConf(confFile)
+		cs, err := config.NewConf(confFile)
 		if err != nil {
 			logger.Log().Errorf("failed to init conf", err.Error())
 			return nil, err
@@ -141,7 +179,10 @@ func initConf() (*Conf, error) {
 	if err2 != nil {
 		logger.Log().Errorf("failed to init logger", err2.Error())
 	}
-
+	err2 = logger.SetLevel(level)
+	if err2 != nil {
+		logger.Log().Errorf("failed to init logger", err2.Error())
+	}
 	return conf, nil
 }
 

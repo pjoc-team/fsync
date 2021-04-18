@@ -4,4 +4,5 @@ bucket: "backup-1251070767"
 secretID: "[changeSecretID]"
 secretKey: "[changeSecretKey]"
 blockSize: 1048576 # 1024*1024
-debug: "true"
+debug: true
+initUpload: false
