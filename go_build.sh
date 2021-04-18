@@ -17,6 +17,6 @@ grep -Er "func\s+main\(\s*\)" "${cmd_dir}" | awk -F ":" '{print $1}' | while rea
 #  dir_name=`echo ${source%/*} | sed "s~${cmd_dir}~~"`
   bin="${bin_dir}/$dir_name"
 
-  echo "build source: $source to bin: ${bin}"
+  echo "build source: $d to bin: ${bin}"
   CGO_ENABLED=0 GOOS=linux go build -o ${bin} $d
 done
