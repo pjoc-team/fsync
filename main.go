@@ -89,6 +89,7 @@ func init() {
 	conf.BlockSize = viper.GetInt(blockSizeVar)
 	conf.Debug = viper.GetBool(debugVar)
 
+	log.Infof("get config: %#v", conf)
 }
 
 func main() {
