@@ -10,7 +10,7 @@ docker run --name="fsync-init" --rm -d \
         -e BLOCK_SIZE="1048576" \
         -e DEBUG="true" \
         -e INIT_UPLOAD="true" \
-	pjoc/fsync
+	pjoc/fsync:master
 
 docker run --name="fsync-watcher" -d \
         -v `pwd`/data:/data \
@@ -22,4 +22,4 @@ docker run --name="fsync-watcher" -d \
         -e BLOCK_SIZE="1048576" \
         -e DEBUG="true" \
         -e INIT_UPLOAD="false" \
-	pjoc/fsync
+	pjoc/fsync:master
