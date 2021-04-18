@@ -173,5 +173,4 @@ fabric.properties
 # vendor/
 .idea
 
-go.sum
 /data
