@@ -174,3 +174,4 @@ fabric.properties
 .idea
 
 go.sum
+/data
