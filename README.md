@@ -1,15 +1,15 @@
 # fsync
 
-[![License](https://img.shields.io/github/license/pjoc-team/go-action-template.svg)](https://www.apache.org/licenses/LICENSE-2.0)
-[![Stars](https://img.shields.io/github/stars/pjoc-team/go-action-template.svg)](https://github.com/pjoc-team/go-action-template/stargazers)
-[![Builder](https://github.com/pjoc-team/go-action-template/workflows/Builder/badge.svg)](https://github.com/pjoc-team/go-action-template/actions)
-[![Release](https://img.shields.io/github/v/tag/pjoc-team/pay-gateway)](https://github.com/pjoc-team/go-action-template/tags)
-[![GoDoc](https://img.shields.io/badge/doc-go.dev-informational.svg)](https://pkg.go.dev/github.com/pjoc-team/go-action-template)
-[![GoMod](https://img.shields.io/github/go-mod/go-version/pjoc-team/go-action-template.svg)](https://golang.org/)
+[![License](https://img.shields.io/github/license/pjoc-team/fsync.svg)](https://www.apache.org/licenses/LICENSE-2.0)
+[![Stars](https://img.shields.io/github/stars/pjoc-team/fsync.svg)](https://github.com/pjoc-team/fsync/stargazers)
+[![Builder](https://github.com/pjoc-team/fsync/workflows/Builder/badge.svg)](https://github.com/pjoc-team/fsync/actions)
+[![Release](https://img.shields.io/github/v/tag/pjoc-team/pay-gateway)](https://github.com/pjoc-team/fsync/tags)
+[![GoDoc](https://img.shields.io/badge/doc-go.dev-informational.svg)](https://pkg.go.dev/github.com/pjoc-team/fsync)
+[![GoMod](https://img.shields.io/github/go-mod/go-version/pjoc-team/fsync.svg)](https://golang.org/)
 
-[![Docker](https://img.shields.io/docker/v/pjoc/go-action-template.svg?label=docker)](https://hub.docker.com/r/pjoc/go-action-template/tags)
-[![Docker](https://img.shields.io/docker/image-size/pjoc/go-action-template/latest.svg)](https://hub.docker.com/r/pjoc/go-action-template/tags)
-[![Docker](https://img.shields.io/docker/pulls/pjoc/go-action-template.svg)](https://hub.docker.com/r/pjoc/go-action-template/tags)
+[![Docker](https://img.shields.io/docker/v/pjoc/fsync.svg?label=docker)](https://hub.docker.com/r/pjoc/fsync/tags)
+[![Docker](https://img.shields.io/docker/image-size/pjoc/fsync/latest.svg)](https://hub.docker.com/r/pjoc/fsync/tags)
+[![Docker](https://img.shields.io/docker/pulls/pjoc/fsync.svg)](https://hub.docker.com/r/pjoc/fsync/tags)
 
 A file sync server.
 
