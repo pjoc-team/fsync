@@ -1,4 +1,4 @@
-path: "./data"
+dataPath: "./data"
 endpoint: "https://cos.ap-guangzhou.myqcloud.com"
 bucket: "backup-1251070767"
 secretID: "[changeSecretID]"

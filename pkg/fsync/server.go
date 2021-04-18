@@ -2,9 +2,7 @@ package fsync
 
 import (
 	"context"
-	"errors"
 	"github.com/fsnotify/fsnotify"
-	"github.com/pjoc-team/fsync/internal/config"
 	"github.com/pjoc-team/fsync/pkg/storage/api"
 	"github.com/pjoc-team/threadpool"
 	"github.com/pjoc-team/tracing/logger"
@@ -15,19 +13,19 @@ import (
 	"sync"
 )
 
-const (
-	confFile = "fsync.yaml"
-)
+// const (
+// 	confFile = "fsync.yaml"
+// )
 
-var (
-	// ErrInvalidPath invalid params
-	ErrInvalidPath = errors.New("invalid confPath")
-)
+// var (
+// 	// ErrInvalidPath invalid params
+// 	ErrInvalidPath = errors.New("invalid confPath")
+// )
 
-// Config config data
-type Config struct {
-	FileInitialized bool `yaml:"fileInitialized"`
-}
+// // Config config data
+// type Config struct {
+// 	FileInitialized bool `yaml:"fileInitialized"`
+// }
 
 type server struct {
 	rootPath   string
@@ -36,8 +34,8 @@ type server struct {
 	watcher    *fsnotify.Watcher
 	ctx        context.Context
 	cancelFunc context.CancelFunc
-	conf       *Config
-	cs         *config.Config
+	// conf       *Config
+	// cs *config.Config
 }
 
 // NewServer create server
@@ -69,22 +67,22 @@ func NewServer(
 		return nil, err2
 	}
 
-	if o.ConfPath == "" {
-		return nil, ErrInvalidPath
-	}
+	// if o.ConfPath == "" {
+	// 	return nil, ErrInvalidPath
+	// }
 
-	fp := filepath.Join(o.ConfPath, confFile)
-	cs, err := config.NewConf(fp)
-	if err != nil {
-		log.Errorf("failed to init conf: %v, error: %v", fp, err.Error())
-		return nil, err
-	}
-	conf := &Config{}
-	err = cs.UnmarshalConfig(conf)
-	if err != nil {
-		log.Errorf("failed to init conf: %v, error: %v", fp, err.Error())
-		return nil, err
-	}
+	// fp := filepath.Join(o.ConfPath, confFile)
+	// cs, err := config.NewConf(fp)
+	// if err != nil {
+	// 	log.Errorf("failed to init conf: %v, error: %v", fp, err.Error())
+	// 	return nil, err
+	// }
+	// conf := &Config{}
+	// err = cs.UnmarshalConfig(conf)
+	// if err != nil {
+	// 	log.Errorf("failed to init conf: %v, error: %v", fp, err.Error())
+	// 	return nil, err
+	// }
 
 	svr := &server{
 		watcher:    watcher,
@@ -93,19 +91,27 @@ func NewServer(
 		storage:    storage,
 		ctx:        ctx,
 		cancelFunc: cancel,
-		conf:       conf,
-		cs:         cs,
+		// conf:       conf,
+		// cs:         cs,
 	}
 	err2 = svr.AddPath(rootPath)
 	if err2 != nil {
 		log.Errorf("failed create watcher of file: %v, error: %v", rootPath, err2.Error())
 	}
-	go svr.watchFile()
 	return svr, nil
+}
+
+// Start start server
+func (s *server) Start() error {
+	if !s.options.InitUpload {
+		s.watchFile()
+	}
+	return nil
 }
 
 func (s *server) AddPath(path string) error {
 	log := logger.ContextLog(s.ctx)
+	log.Debugf("process path: %v", path)
 	_, err := os.OpenFile(path, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
 		err := os.MkdirAll(path, 0777)
@@ -138,8 +144,8 @@ func (s *server) AddPath(path string) error {
 			return nil
 		}
 		if pool != nil {
+			wg.Add(1)
 			pool.Run(func() {
-				wg.Add(1)
 				defer wg.Done()
 				err = s.uploadFile(subPath)
 				if err != nil {
@@ -160,12 +166,12 @@ func (s *server) AddPath(path string) error {
 		return err
 	}
 
-	s.conf.FileInitialized = true
-	err = s.writeConfig()
-	if err != nil {
-		log.Errorf("failed write config, error: %v", err.Error())
-		return err
-	}
+	// s.conf.FileInitialized = true
+	// err = s.writeConfig()
+	// if err != nil {
+	// 	log.Errorf("failed write config, error: %v", err.Error())
+	// 	return err
+	// }
 
 	return nil
 }
@@ -273,7 +279,7 @@ func (s *server) uploadFile(file string) error {
 	}
 }
 
-func (s *server) writeConfig() error {
-	// TODO implements write data
-	return nil
-}
+// func (s *server) writeConfig() error {
+// 	// TODO implements write data
+// 	return nil
+// }

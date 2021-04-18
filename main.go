@@ -29,7 +29,7 @@ const (
 
 // Conf config struct
 type Conf struct {
-	Path       string `yaml:"path" json:"path" xml:"path"`
+	DataPath   string `yaml:"dataPath" json:"data_path" xml:"data_path"`
 	Endpoint   string `yaml:"endpoint" json:"endpoint" xml:"endpoint"`
 	Bucket     string `yaml:"bucket" json:"bucket" xml:"bucket"`
 	SecretID   string `yaml:"secretId" json:"secret_id" xml:"secret_id"`
@@ -49,7 +49,7 @@ func init() {
 
 	confVar := "conf"
 	initUploadVar := "init-upload"
-	pathVar := "path"
+	pathVar := "data-path"
 	confPathVar := "conf-path"
 	endpointVar := "endpoint"
 	bucketVar := "bucket"
@@ -60,7 +60,7 @@ func init() {
 
 	pflag.StringVar(&confFile, confVar, "", "conf file path")
 	pflag.BoolVar(&conf.InitUpload, initUploadVar, false, "upload all data when first time")
-	pflag.StringVar(&conf.Path, pathVar, "./data/", "upload path")
+	pflag.StringVar(&conf.DataPath, pathVar, "./data/", "upload path")
 	pflag.StringVar(&conf.ConfPath, confPathVar, "./conf/", "config path")
 	pflag.StringVar(&conf.Endpoint, endpointVar, "https://cos.ap-guangzhou.myqcloud.com", "endpoint")
 	pflag.StringVar(&conf.Bucket, bucketVar, "backup-1251070767", "bucket")
@@ -80,7 +80,7 @@ func init() {
 
 	confFile = viper.GetString(confVar)
 	conf.InitUpload = viper.GetBool(initUploadVar)
-	conf.Path = viper.GetString(pathVar)
+	conf.DataPath = viper.GetString(pathVar)
 	conf.ConfPath = viper.GetString(confPathVar)
 	conf.Endpoint = viper.GetString(endpointVar)
 	conf.Bucket = viper.GetString(bucketVar)
@@ -95,8 +95,7 @@ func init() {
 func main() {
 	rand.Seed(int64(time.Now().Nanosecond()))
 
-	ctx, cancelFunc := context.WithCancel(context.Background())
-	defer cancelFunc()
+	ctx := context.Background()
 	log := logger.ContextLog(ctx)
 
 	// shutdown functions
@@ -106,6 +105,11 @@ func main() {
 	interrupt := make(chan os.Signal, 1)
 	signal.Notify(interrupt, os.Interrupt, syscall.SIGTERM)
 	defer signal.Stop(interrupt)
+
+	// errgroup ctx
+	g, ctx := errgroup.WithContext(ctx)
+	ctx, cancelFunc := context.WithCancel(ctx)
+	defer cancelFunc()
 
 	// init
 	conf, err := initConf()
@@ -117,7 +121,7 @@ func main() {
 		log.Fatalf("failed init file storage server, error: %v", err.Error())
 	}
 	s, err := fsync.NewServer(
-		ctx, conf.Path, server, fsync.OptionBufferSize(conf.BlockSize),
+		ctx, conf.DataPath, server, fsync.OptionBufferSize(conf.BlockSize),
 		fsync.OptionConfPath(conf.ConfPath), fsync.OptionThreadPoolSize(threadPoolSize),
 		fsync.OptionInitUpload(conf.InitUpload),
 	)
@@ -125,8 +129,6 @@ func main() {
 		log.Fatalf("failed to create server, error: %v", err.Error())
 	}
 
-	// errgroup
-	g, ctx := errgroup.WithContext(ctx)
 	g.Go(
 		func() error {
 			shutdownFunctions = append(
@@ -134,7 +136,10 @@ func main() {
 					s.Close()
 				},
 			)
-			return err
+			err2 := s.Start()
+			log.Infof("fsync server done...")
+			cancelFunc()
+			return err2
 		},
 	)
 
