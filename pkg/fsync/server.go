@@ -187,7 +187,7 @@ func (s *server) watchFile() {
 	for {
 		select {
 		case event := <-s.watcher.Events:
-			log.Debugf("get event: %v", event.Name)
+			log.Debugf("get event: %v ", event)
 			file := event.Name
 			if event.Op&fsnotify.Write == fsnotify.Write {
 				log.Infof("upload file: %v", file)
