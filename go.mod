@@ -3,7 +3,7 @@ module github.com/pjoc-team/fsync
 go 1.14
 
 require (
-	github.com/aws/aws-sdk-go v1.38.21
+	github.com/aws/aws-sdk-go v1.42.28
 	github.com/fsnotify/fsnotify v1.4.9
 	github.com/gin-gonic/gin v1.5.0
 	github.com/go-playground/universal-translator v0.17.0 // indirect

@@ -3,6 +3,9 @@ package oss
 import (
 	"bytes"
 	"context"
+	"io"
+	"time"
+
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
@@ -10,7 +13,6 @@ import (
 	api2 "github.com/pjoc-team/fsync/pkg/storage/api"
 	"github.com/pjoc-team/fsync/pkg/util/fs"
 	"github.com/pjoc-team/tracing/logger"
-	"io"
 )
 
 type storage struct {
@@ -236,4 +238,16 @@ func (s *storage) Info(ctx context.Context, path string) (*api2.FileInfo, error)
 		Size:     *resp.ContentLength,
 	}
 	return fileInfo, nil
+}
+
+func (s *storage) CreateUploadURL(ctx context.Context, path string, expire time.Duration) (string, error) {
+	service := s3.New(s.sess)
+	req, _ := service.PutObjectRequest(
+		&s3.PutObjectInput{
+			Bucket: aws.String(s.bucket),
+			Key:    aws.String(path),
+		},
+	)
+
+	return req.Presign(expire)
 }
