@@ -11,7 +11,7 @@ import (
 	"time"
 )
 
-func ExampleStorage_CreateUploadURL() {
+func Examplestorage_CreateUploadURL() {
 	ossStorage, err := NewOssStorage(
 		&Conf{
 			Endpoint:  "https://cos.ap-guangzhou.myqcloud.com",
@@ -39,13 +39,11 @@ func ExampleStorage_CreateUploadURL() {
 	// post, err := http.DefaultClient.Post(url, "image/jpeg", bufferString)
 	if err != nil {
 		panic(err)
-		return
 	}
 	fmt.Println(post.Status)
 	all, err := ioutil.ReadAll(post.Body)
 	if err != nil {
 		panic(err)
-		return
 	}
 	fmt.Println(string(all))
 }
@@ -65,7 +63,10 @@ func newFileUploadRequest(
 	if err != nil {
 		return nil, err
 	}
-	part.Write(all)
+	_, err = part.Write(all)
+	if err != nil {
+		return nil, err
+	}
 
 	for key, val := range params {
 		_ = writer.WriteField(key, val)
